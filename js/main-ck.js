@@ -1,0 +1,1 @@
+(function(e){e(function(){e(".send").on("click",t)});var t=function(){sHtml=e("#form").val().replace("\n","").replace(" ","");console.log(sHtml.split("<form>"))}}).call(this,jQuery);

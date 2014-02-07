@@ -1,0 +1,32 @@
+@import "variables";
+@import "mixin";
+@import "compass";
+@import "compass/reset";
+@import "compass/css3";
+@import "icons";
+
+
+@include body();
+@include container();
+@include heading();
+@include section();
+@include wrapper();
+@include article();
+@include breadcrumbs();
+@include btn();
+@include label();
+@include input();
+@include form();
+@include img();
+@include icon();
+@include tab();
+/* GENERAL */
+body {
+  background-color: white;
+  //background-image: image-url('framework/background/background.jpg');
+
+}
+
+/* MEDIA QUERIES */
+@import "responsive";
+/* END MEDIA*/
