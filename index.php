@@ -88,14 +88,26 @@ elseif($tagName === "textarea"){
 
 }
 elseif($tagName === "select"){ //  name,array,default,
-var_dump($data->selected);
 
-   /* if($data->tag){
-       if($data->tag){
+    if($data->tag){
+
         $tag = $data->tag; 
     }
     else{
         $tag = "";
+    }
+    if($data->name){
+        if($data->multiple ==="true"){
+
+            $name = $data->name."[]"; 
+
+        }else{
+
+            $name = $data->name; 
+        }
+    }
+    else{
+        $name = "";
     }
     if($data->style){
         $style = ',"style"=>'.$data->style; 
@@ -116,15 +128,42 @@ var_dump($data->selected);
         $id = "";
     }
     if($data->options){
-        $options = $data->options; 
+
+        $json = json_encode($data->options);
+
+        $options = str_replace(array("[","]",":"), 
+          array("array(",")","=>"), $json);
+
     }
     else{
         $options = "";
     }
+    if($data->multiple){
+        $multiple = $data->multiple; 
+    }
+    else{
+        $multiple = "";
+    }
+    if($data->selected){
+        if(count($data->selected)>1){
+            $json = json_encode($data->selected);
 
-    */
+            $selected = str_replace(array("[","]",":"), 
+              array("array(",")","=>"), $json); 
+        }
+        else{
+             $json = json_encode($data->selected);
 
-   // return '{{Form::'. $data->tag.'("'. $name.'","'.$data->options.'" ,array('.$class.''.$id.''.$style.''.$placeholder.'))}}';
+            $selected = str_replace(array("[","]",":"), 
+              array('','',''), $json); 
+        }
+        var_dump($selected);
+    }
+    else{
+        $selected = "";
+    }
+
+    return '{{Form::'. $tag.'("'. $name.'","'.$options.'",'.$selected.',array('.$class.''.$id.''.$style.''.$multiple.'))}}';
 }
 }
 /* FORM TAG */ 
@@ -135,6 +174,7 @@ $form_route = $form->attr['route'];
 $form_action = $form->attr['action'];
 $form_param = $form->attr['param'];*/
 $form = $html->find('form');
+$selected = [];
 for($i=0;$i < count($form); $i++){
     $form_tag[$i] = (object)[
     'method'=>$form[$i]->attr['method'],
@@ -146,22 +186,24 @@ for($i=0;$i < count($form); $i++){
     'class'=>$form[$i]->attr['class'],
     'id'=>$form[$i]->attr['id'],
     'style'=>$form[$i]->attr['style'],
+    
     ];
 
     for($u=0;$u < count($form[$i]->children); $u++){
         $that = $form[$i]->children[$u];
         for($d=0; $d < count($that->find('option')); $d++){
             $option = $that->find('option')[$d];
-            $selected = [];
-            $options[$d] = [
-            'html' => $option->plaintext,
-            ];
+            
+            $options[$d] = $option->plaintext;
+
 
             if($option->attr['selected']){
-                array_push($selected,$option->attr['selected']);
+                if (!in_array($option->plaintext, $selected)) {
+                    array_push($selected,$option->plaintext);
+                //'selected' => $option->attr['selected'],
+               // 'value' => $option->attr['html'],
+                }
             }
-
-
 
 
 
@@ -179,6 +221,7 @@ for($i=0;$i < count($form); $i++){
         'value' => $that->attr['value'],
         'cols' => $that->attr['cols'],
         'rows' => $that->attr['rows'],
+        'multiple'=>$that->attr['multiple'],
         'selected' => $selected,
         'options' => $options, //ATTR tag, selected, value 
         ];
@@ -190,125 +233,8 @@ for($i=0;$i < count($form); $i++){
     'tags'=>$tags,
     ];
 }
-
 /* END FORM TAG */ 
 /* LABEL & INPUT TAGS */
-/* LABEL */
-/*$labels = $html->find('label');
-
-$label=[];
-$label_data=[];
-for($i=0; $i < count($labels);$i++){
-    if(count($labels->attr['data']) > 0){
-        for($l=0; $l < count($labels->attr['data^']);$l++){
-            $label_data[$l]=(object)[$labels->attr['data^'][$l]];   
-        }
-    }
-    $label[$i] = (object)[
-    'for' => $labels[$i]->attr['for'],
-    'class' => $labels[$i]->attr['class'],
-    'id' => $labels[$i]->attr['id'],
-    'html'=>$labels[$i]->plaintext,
-    'type'=>$labels[$i]->tag,
-    'data' => $label_data,
-    ];
-
-
-}*/
-/* INPUT */
-/*$inputs = $html->find('input[type=text],input[type=email],input[type=button],input[type=checkbox],input[type=color],input[type=date],,input[type=datetime],input[type=datetime-local],,input[type=file],input[type=image],input[type=month],input[type=number],input[type=password],input[type=radio],input[type=range],input[type=reset],input[type=search],input[type=tel],input[type=time],input[type=url],input[type=week]');
-
-$input=[];
-$input_data=[];
-for($i=0; $i < count($inputs);$i++){
-    if(count($inputs->attr['data']) > 0){
-        for($l=0; $l < count($inputs->attr['data^']);$l++){
-            $input_data[$l]=(object)[$inputs->attr['data^'][$l]];   
-        }
-    }
-    $input[$i] = (object)[
-    'type' => $inputs[$i]->attr['type'],
-    'class' => $inputs[$i]->attr['class'],
-    'id' => $inputs[$i]->attr['id'],
-    'name' => $inputs[$i]->attr['name'],
-    'placeholder' => $inputs[$i]->attr['placeholder'],
-    'value' => $inputs[$i]->attr['value'],
-    'data' => $input_data,
-    ];
-
-
-}*/
-
-/* TEXTAREA */
-/*$textareas = $html->find('p');
-$textarea=[];*/
-//$input_data=[];
-/*for($i=0; $i < count($textareas);$i++){
-    $textarea[$i] = (object)[
-    'type' => $textareas[$i]->attr['type'],
-    'class' => $textareas[$i]->attr['class'],
-    'id' => $textareas[$i]->attr['id'],
-    'name' => $textareas[$i]->attr['name'],
-    'cols' => $textareas[$i]->attr['cols'],
-    'rows' => $textareas[$i]->attr['rows'],
-    'placeholder' => $textareas[$i]->attr['placeholder'],
-    'html' => $textareas[$i]->attr['html'],
-    ];
-}*/
-
-/* END TEXTAREA */
-/*$label_input=[];
-if(count($labels) > count($input)){
-    for($i=0;$i<count($labels);$i++){
-     $label_input[$i]= (object)['label'=>$label[$i],'input'=>$input[$i],'textarea'=>$textarea[$i]];
- }
-}else{
-    for($i=0;$i<count($inputs);$i++){
-     $label_input[$i]= (object)['label'=>$label[$i],'input'=>$input[$i],'textarea'=>$textarea[$i]];
- }
-}*/
-/* END LABEL & INPUT TAGS */
-
-/* INPUT HIDDEN */
-
-/*$hiddens = $html->find('input[type=hidden]');
-$hidden = [];
-for($i=0; $i < count($hiddens);$i++){
-
-    $hidden[$i] =(object)[
-    'type' => $hiddens[$i]->attr['type'],
-    'class' => $hiddens[$i]->attr['class'],
-    'name' => $hiddens[$i]->attr['name'],
-    'id' => $hiddens[$i]->attr['id'],
-    'value'=> $hiddens[$i]->attr['value'],
-    ];
-}
-*/
-/* END INPUT HIDDEN */
-/* INPUT SUBMIT */
-/*$submits = $html->find('input[type=submit]')[0];
-$submit = [];
-$submit =(object)[
-'type' => $submits->attr['type'],
-'class' => $submits->attr['class'],
-'id' => $submits->attr['id'],
-'value'=> $submits->attr['value'],
-];*/
-
-/* END INPUT SUBMIT*/
-
-/* END INPUT SUBMIT*/
-/*$i=0;
-foreach($html->find('form',0) as $form){
-    $totalForm[$i] = (object)[
-    'label'=>$label,
- 'input'=>$input,
-    'textarea'=>$textarea,
-    'hidden'=>$hidden,
-    'submit'=>$submit,
-    ]
-    $i++;
-}*/
 
 $forms = $totalForm->form;
 $tags = $totalForm->tags;
